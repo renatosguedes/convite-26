@@ -1,0 +1,168 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta property="og:title" content="Erica e Renato · 26 anos">
+<meta property="og:description" content="Você está convidado! Toque para abrir o convite.">
+<meta property="og:image" content="https://renatosguedes.github.io/convite-26/og-cover.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:url" content="https://renatosguedes.github.io/convite-26/">
+<meta property="og:type" content="website">
+<meta name="twitter:card" content="summary_large_image">
+<title>Erica e Renato · 26 anos</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&display=swap">
+<style>
+  *,*::before,*::after{box-sizing:border-box}
+  [hidden]{display:none!important}
+  body{margin:0}
+  /* Layout: uma coluna estreita como um cartão na mão; o envelope ocupa a tela até ser aberto. */
+  :root {
+    --ground: #e9f3fa;      /* azul-gelo das estrelas do convite */
+    --paper: #ffffff;
+    --wine: #7a0000;        /* vinho dos títulos */
+    --rose: #a8585c;        /* rosado do texto corrido */
+    --seal: #9cc6e2;        /* lacre azul */
+    --shadow: rgba(60, 40, 50, .14);
+    --serif: "Source Serif 4", Georgia, "Times New Roman", serif;
+    color-scheme: light;
+  }
+  html, body { background: var(--ground); color: var(--wine); }
+  body {
+    font-family: var(--serif);
+    padding-left: max(16px, env(safe-area-inset-left, 0px));
+    padding-right: max(16px, env(safe-area-inset-right, 0px));
+    padding-block: 24px 40px;
+  }
+  main {
+    max-width: 440px;
+    margin: 0 auto;
+    display: grid;
+    gap: 20px;
+  }
+  .page {
+    display: block;
+    width: 100%;
+    max-width: 100%;
+    aspect-ratio: 924 / 1302;
+    background: var(--paper);
+    border-radius: 6px;
+    box-shadow: 0 1px 2px var(--shadow), 0 14px 34px var(--shadow);
+    overflow: hidden;
+  }
+  .page img { display: block; width: 100%; height: 100%; }
+
+  /* Capa clicável */
+  #cover {
+    position: relative;
+    border: 0;
+    padding: 0;
+    cursor: pointer;
+    font: inherit;
+    transition: transform .25s ease;
+  }
+  #cover:hover { transform: translateY(-2px); }
+  #cover:focus-visible { outline: 3px solid var(--wine); outline-offset: 4px; }
+  /* Pulso suave sobre o lacre, para indicar onde tocar */
+  .pulse {
+    position: absolute;
+    left: 49.8%;
+    top: 60.9%;
+    width: 15%;
+    aspect-ratio: 1;
+    transform: translate(-50%, -50%);
+    border-radius: 50%;
+    border: 2px solid var(--seal);
+    animation: pulse 2s ease-out infinite;
+    pointer-events: none;
+  }
+  @keyframes pulse {
+    0%   { opacity: .9; transform: translate(-50%, -50%) scale(.85); }
+    100% { opacity: 0;  transform: translate(-50%, -50%) scale(1.6); }
+  }
+
+  /* Abertura */
+  #cover.opening {
+    animation: lift .7s cubic-bezier(.5, 0, .7, .4) forwards;
+    pointer-events: none;
+  }
+  @keyframes lift {
+    0%   { transform: none; opacity: 1; }
+    30%  { transform: scale(1.03) rotate(-1deg); opacity: 1; }
+    100% { transform: translateY(-40px) scale(.92) rotate(2deg); opacity: 0; }
+  }
+  .reveal { animation: rise .8s cubic-bezier(.2, .7, .2, 1) both; }
+  .reveal.d2 { animation-delay: .25s; }
+  .reveal.d3 { animation-delay: .5s; }
+  @keyframes rise {
+    from { opacity: 0; transform: translateY(28px) scale(.97); }
+    to   { opacity: 1; transform: none; }
+  }
+
+  .actions { display: flex; justify-content: center; }
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 22px;
+    border-radius: 999px;
+    background: var(--wine);
+    color: var(--paper);
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 16px;
+  }
+  .btn:focus-visible { outline: 3px solid var(--wine); outline-offset: 3px; }
+  .btn svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 2; }
+
+  @media (prefers-reduced-motion: reduce) {
+    .pulse { animation: none; opacity: .8; }
+    #cover.opening, .reveal { animation-duration: .01s; animation-delay: 0s; }
+  }
+</style>
+</head>
+<body>
+
+<main>
+  <button id="cover" class="page" type="button" aria-label="Abrir o convite">
+    <img src="v3-1.jpg" alt="Erica e Renato, 26 anos. Envelope fechado com lacre azul. Clique para abrir.">
+    <span class="pulse" aria-hidden="true"></span>
+  </button>
+
+  <div id="inside" hidden>
+    <div style="display:grid;gap:20px">
+      <div class="page reveal d2">
+        <img src="v3-2.jpg" alt="It's our birthday. Fotos de infância da Erica e do Renato com balões de 26. É com imensa alegria que convidamos você para o nosso aniversário!">
+      </div>
+      <div class="page reveal d3">
+        <img src="v3-3.jpg" alt="Domingo, 20 de dezembro de 2026, às 19:00. Ma Che!, Rua José Vilar, 1425, Meireles. Confirmar presença até 6 de dezembro. Pizza por nossa conta, bebidas por sua conta.">
+      </div>
+      <div class="actions reveal d3">
+        <a class="btn" href="https://www.google.com/maps/search/?api=1&query=Ma%20Che%20Rua%20Jos%C3%A9%20Vilar%201425%20Meireles%20Fortaleza" target="_blank" rel="noopener">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s-7-6.2-7-11.5A7 7 0 0 1 19 9.5C19 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/></svg>
+          Ver no mapa
+        </a>
+      </div>
+    </div>
+  </div>
+</main>
+
+<script>
+  const cover = document.getElementById('cover');
+  const inside = document.getElementById('inside');
+  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  cover.addEventListener('click', () => {
+    cover.classList.add('opening');
+    setTimeout(() => {
+      cover.hidden = true;
+      inside.hidden = false;
+      window.scrollTo({ top: 0, behavior: reduce ? 'auto' : 'smooth' });
+    }, reduce ? 0 : 650);
+  });
+</script>
+
+</body>
+</html>
