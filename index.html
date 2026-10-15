@@ -93,9 +93,9 @@
     30%  { transform: scale(1.03) rotate(-1deg); opacity: 1; }
     100% { transform: translateY(-40px) scale(.92) rotate(2deg); opacity: 0; }
   }
-  .reveal { animation: rise .8s cubic-bezier(.2, .7, .2, 1) both; }
-  .reveal.d2 { animation-delay: .25s; }
-  .reveal.d3 { animation-delay: .5s; }
+  /* Cada bloco entra em sequência, e só quando chega à tela */
+  .reveal { opacity: 0; }
+  .reveal.show { animation: rise .8s cubic-bezier(.2, .7, .2, 1) both; animation-delay: var(--delay, 0s); }
   @keyframes rise {
     from { opacity: 0; transform: translateY(28px) scale(.97); }
     to   { opacity: 1; transform: none; }
@@ -119,7 +119,7 @@
 
   @media (prefers-reduced-motion: reduce) {
     .pulse { animation: none; opacity: .8; }
-    #cover.opening, .reveal { animation-duration: .01s; animation-delay: 0s; }
+    #cover.opening, .reveal.show { animation-duration: .01s; animation-delay: 0s !important; }
   }
 </style>
 </head>
@@ -132,14 +132,14 @@
   </button>
 
   <div id="inside" hidden>
-    <div style="display:grid;gap:20px">
-      <div class="page reveal d2">
+    <div style="display:grid;gap:40px">
+      <div class="page reveal">
         <img src="v3-2.jpg" alt="It's our birthday. Fotos de infância da Erica e do Renato com balões de 26. É com imensa alegria que convidamos você para o nosso aniversário!">
       </div>
-      <div class="page reveal d3">
+      <div class="page reveal">
         <img src="v5-3.jpg" alt="Domingo, 20 de dezembro de 2026, às 19:00. Ma Che!, Rua José Vilar, 1425, Meireles. Confirmar presença até 6 de dezembro. Pizza por nossa conta, bebidas por sua conta.">
       </div>
-      <div class="actions reveal d3">
+      <div class="actions reveal">
         <a class="btn" href="https://www.google.com/maps/search/?api=1&query=Ma%20Che%20Rua%20Jos%C3%A9%20Vilar%201425%20Meireles%20Fortaleza" target="_blank" rel="noopener">
           <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s-7-6.2-7-11.5A7 7 0 0 1 19 9.5C19 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/></svg>
           Ver no mapa
@@ -160,8 +160,30 @@
       cover.hidden = true;
       inside.hidden = false;
       window.scrollTo({ top: 0, behavior: reduce ? 'auto' : 'smooth' });
+      revealInOrder();
     }, reduce ? 0 : 650);
   });
+
+  // Mostra cada bloco quando ele entra na tela, com pelo menos 0,6 s entre um e outro
+  function revealInOrder() {
+    const items = [...document.querySelectorAll('.reveal')];
+    const gap = reduce ? 0 : 600;
+    let next = performance.now() + (reduce ? 0 : 150);
+    const show = (el) => {
+      const wait = Math.max(0, next - performance.now());
+      el.style.setProperty('--delay', (wait / 1000) + 's');
+      el.classList.add('show');
+      next = performance.now() + wait + gap;
+    };
+    if (!('IntersectionObserver' in window)) { items.forEach(show); return; }
+    const io = new IntersectionObserver((entries) => {
+      entries
+        .filter((e) => e.isIntersecting)
+        .sort((a, b) => items.indexOf(a.target) - items.indexOf(b.target))
+        .forEach((e) => { io.unobserve(e.target); show(e.target); });
+    }, { threshold: 0.15 });
+    items.forEach((el) => io.observe(el));
+  }
 </script>
 
 </body>
