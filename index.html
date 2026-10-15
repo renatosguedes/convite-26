@@ -101,6 +101,30 @@
     to   { opacity: 1; transform: none; }
   }
 
+
+  /* Indicação para rolar até os detalhes */
+  .scroll-hint {
+    position: fixed;
+    left: 0; right: 0; bottom: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    padding: 32px max(16px, env(safe-area-inset-right, 0px)) calc(18px + env(safe-area-inset-bottom, 0px)) max(16px, env(safe-area-inset-left, 0px));
+    background: linear-gradient(to top, var(--ground) 45%, rgba(233, 243, 250, 0));
+    border: 0;
+    color: var(--wine);
+    font: 600 15px/1.2 var(--serif);
+    cursor: pointer;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity .5s ease;
+  }
+  .scroll-hint.on { opacity: 1; pointer-events: auto; }
+  .scroll-hint svg { width: 26px; height: 26px; fill: none; stroke: currentColor; stroke-width: 2.2; animation: nudge 1.4s ease-in-out infinite; }
+  @keyframes nudge { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(6px); } }
+  .scroll-hint:focus-visible { outline: 3px solid var(--wine); outline-offset: -6px; }
+
   .actions { display: flex; justify-content: center; }
   .btn {
     display: inline-flex;
@@ -119,6 +143,7 @@
 
   @media (prefers-reduced-motion: reduce) {
     .pulse { animation: none; opacity: .8; }
+    .scroll-hint svg { animation: none; }
     #cover.opening, .reveal.show { animation-duration: .01s; animation-delay: 0s !important; }
   }
 </style>
@@ -136,7 +161,7 @@
       <div class="page reveal">
         <img src="v3-2.jpg" alt="It's our birthday. Fotos de infância da Erica e do Renato com balões de 26. É com imensa alegria que convidamos você para o nosso aniversário!">
       </div>
-      <div class="page reveal">
+      <div class="page reveal" id="details">
         <img src="v5-3.jpg" alt="Domingo, 20 de dezembro de 2026, às 19:00. Ma Che!, Rua José Vilar, 1425, Meireles. Confirmar presença até 6 de dezembro. Pizza por nossa conta, bebidas por sua conta.">
       </div>
       <div class="actions reveal">
@@ -148,6 +173,11 @@
     </div>
   </div>
 </main>
+
+<button id="hint" class="scroll-hint" type="button" aria-label="Ver os detalhes da festa">
+  Role para ver os detalhes
+  <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
+</button>
 
 <script>
   const cover = document.getElementById('cover');
@@ -164,16 +194,31 @@
     }, reduce ? 0 : 650);
   });
 
-  // Mostra cada bloco quando ele entra na tela, com pelo menos 0,6 s entre um e outro
+  const hint = document.getElementById('hint');
+  const details = document.getElementById('details');
+  hint.addEventListener('click', () => {
+    details.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'center' });
+  });
+
+  // Mostra cada bloco quando ele entra na tela, com pelo menos 0,6 s entre um e outro.
+  // Depois da página 2, aparece a indicação para rolar; ela some quando a página 3 aparece.
   function revealInOrder() {
     const items = [...document.querySelectorAll('.reveal')];
     const gap = reduce ? 0 : 600;
     let next = performance.now() + (reduce ? 0 : 150);
+    let detailsShown = false;
     const show = (el) => {
       const wait = Math.max(0, next - performance.now());
       el.style.setProperty('--delay', (wait / 1000) + 's');
       el.classList.add('show');
       next = performance.now() + wait + gap;
+      if (el === items[0]) {
+        setTimeout(() => { if (!detailsShown) hint.classList.add('on'); }, wait + (reduce ? 0 : 900));
+      }
+      if (el === details) {
+        detailsShown = true;
+        hint.classList.remove('on');
+      }
     };
     if (!('IntersectionObserver' in window)) { items.forEach(show); return; }
     const io = new IntersectionObserver((entries) => {
@@ -181,7 +226,7 @@
         .filter((e) => e.isIntersecting)
         .sort((a, b) => items.indexOf(a.target) - items.indexOf(b.target))
         .forEach((e) => { io.unobserve(e.target); show(e.target); });
-    }, { threshold: 0.15 });
+    }, { threshold: 0.5 });
     items.forEach((el) => io.observe(el));
   }
 </script>
