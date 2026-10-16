@@ -132,7 +132,28 @@
   @keyframes nudge { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(6px); } }
   .scroll-hint:focus-visible { outline: 3px solid var(--wine); outline-offset: -6px; }
 
-  .actions { display: flex; justify-content: center; }
+  .actions { display: grid; justify-items: center; gap: 10px; }
+  .actions .row { display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; }
+  .btn.outline { background: var(--paper); color: var(--wine); box-shadow: inset 0 0 0 2px var(--wine); }
+  .note { margin: 0; max-width: 32ch; text-align: center; color: var(--rose); font-size: 14px; line-height: 1.4; text-wrap: balance; }
+  .toast {
+    position: fixed;
+    left: 50%;
+    top: calc(16px + env(safe-area-inset-top, 0px));
+    transform: translate(-50%, -12px);
+    max-width: calc(100% - 32px);
+    padding: 10px 16px;
+    border-radius: 12px;
+    background: var(--wine);
+    color: var(--paper);
+    font-size: 15px;
+    text-align: center;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity .3s ease, transform .3s ease;
+    z-index: 20;
+  }
+  .toast.on { opacity: 1; transform: translate(-50%, 0); }
   .btn {
     display: inline-flex;
     align-items: center;
@@ -176,14 +197,23 @@
         <img src="v6-3.jpg" alt="Domingo, 20 de dezembro de 2026, às 19:00. Ma Che!, Rua José Vilar, 1425, Meireles. Confirmar presença até 6 de dezembro. Pizza por nossa conta, bebidas por sua conta.">
       </div>
       <div class="actions reveal">
-        <a class="btn" href="https://maps.app.goo.gl/7cyQAXCkexJD1zJ86" target="_blank" rel="noopener">
-          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s-7-6.2-7-11.5A7 7 0 0 1 19 9.5C19 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/></svg>
-          Ver no mapa
-        </a>
+        <div class="row">
+          <a class="btn" id="rsvp" href="https://wa.me/qr/SSKIEHUTOWJAI1" target="_blank" rel="noopener">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>
+            Confirmar presença
+          </a>
+          <a class="btn outline" href="https://maps.app.goo.gl/7cyQAXCkexJD1zJ86" target="_blank" rel="noopener">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s-7-6.2-7-11.5A7 7 0 0 1 19 9.5C19 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/></svg>
+            Ver no mapa
+          </a>
+        </div>
+        <p class="note">Ao confirmar, copiamos uma mensagem pronta. É só colar no WhatsApp e enviar.</p>
       </div>
     </div>
   </div>
 </main>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
 
 <button id="hint" class="scroll-hint" type="button" aria-label="Ver os detalhes da festa">
   Role para ver os detalhes
@@ -240,6 +270,35 @@
     }, { threshold: 0.5 });
     items.forEach((el) => io.observe(el));
   }
+
+  // Confirmar presença: copia a mensagem pronta antes de abrir o WhatsApp
+  const RSVP_MSG = 'Oi, Erica e Renato! Confirmo minha presença no aniversário de vocês, domingo, 20/12, às 19h. 🎉';
+  const toast = document.getElementById('toast');
+  let toastTimer;
+  function showToast(text) {
+    toast.textContent = text;
+    toast.classList.add('on');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => toast.classList.remove('on'), 4000);
+  }
+  function copyFallback(text) {
+    const ta = document.createElement('textarea');
+    ta.value = text; ta.setAttribute('readonly', '');
+    ta.style.position = 'fixed'; ta.style.opacity = '0';
+    document.body.appendChild(ta); ta.select();
+    let ok = false;
+    try { ok = document.execCommand('copy'); } catch (e) {}
+    ta.remove();
+    return ok;
+  }
+  document.getElementById('rsvp').addEventListener('click', () => {
+    const done = () => showToast('Mensagem copiada! Cole no WhatsApp e envie.');
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(RSVP_MSG).then(done, () => { if (copyFallback(RSVP_MSG)) done(); });
+    } else if (copyFallback(RSVP_MSG)) {
+      done();
+    }
+  });
 </script>
 
 </body>
