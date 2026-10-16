@@ -135,6 +135,20 @@
   .actions { display: grid; justify-items: center; gap: 10px; }
   .actions .row { display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; }
   .btn.outline { background: var(--paper); color: var(--wine); box-shadow: inset 0 0 0 2px var(--wine); }
+  .guests {
+    display: flex; align-items: center; justify-content: center; flex-wrap: wrap;
+    gap: 10px 14px; color: var(--wine); font-size: 16px;
+  }
+  .guests label { font-weight: 600; }
+  .guests label small { font-weight: 400; color: var(--rose); }
+  .stepper { display: inline-flex; align-items: center; gap: 4px; background: var(--paper); border-radius: 999px; padding: 4px; box-shadow: inset 0 0 0 1.5px var(--seal); }
+  .stepper button {
+    width: 36px; height: 36px; border: 0; border-radius: 50%;
+    background: var(--ground); color: var(--wine); font: 600 20px/1 var(--serif); cursor: pointer;
+  }
+  .stepper button:disabled { opacity: .35; cursor: default; }
+  .stepper button:focus-visible { outline: 2px solid var(--wine); outline-offset: 2px; }
+  .stepper output { min-width: 2ch; text-align: center; font: 600 18px var(--serif); font-variant-numeric: tabular-nums; }
   .note { margin: 0; max-width: 32ch; text-align: center; color: var(--rose); font-size: 14px; line-height: 1.4; text-wrap: balance; }
   .toast {
     position: fixed;
@@ -197,6 +211,14 @@
         <img src="v6-3.jpg" alt="Domingo, 20 de dezembro de 2026, às 19:00. Ma Che!, Rua José Vilar, 1425, Meireles. Confirmar presença até 6 de dezembro. Pizza por nossa conta, bebidas por sua conta.">
       </div>
       <div class="actions reveal">
+        <div class="guests">
+          <label id="guestsLabel">Acompanhantes <small>(opcional)</small></label>
+          <div class="stepper" role="group" aria-labelledby="guestsLabel">
+            <button type="button" id="minus" aria-label="Menos um acompanhante">−</button>
+            <output id="count" aria-live="polite">0</output>
+            <button type="button" id="plus" aria-label="Mais um acompanhante">+</button>
+          </div>
+        </div>
         <div class="row">
           <a class="btn" id="rsvp" href="https://wa.me/qr/SSKIEHUTOWJAI1" target="_blank" rel="noopener">
             <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>
@@ -271,8 +293,32 @@
     items.forEach((el) => io.observe(el));
   }
 
-  // Confirmar presença: copia a mensagem pronta antes de abrir o WhatsApp
-  const RSVP_MSG = 'Oi, Erica e Renato! Confirmo minha presença no aniversário de vocês, domingo, 20/12, às 19h. 🎉';
+  // Confirmar presença pelo WhatsApp, com quantidade de acompanhantes
+  const PHONE = '5585987216749';   // número com DDI e DDD, só dígitos (ex.: 5585999999999); vazio = link QR + copiar mensagem
+  const QR_LINK = 'https://wa.me/qr/SSKIEHUTOWJAI1';
+  const MAX_GUESTS = 10;
+  let guests = 0;
+  const rsvp = document.getElementById('rsvp');
+  const countEl = document.getElementById('count');
+  const minus = document.getElementById('minus');
+  const plus = document.getElementById('plus');
+  const note = document.querySelector('.note');
+
+  function rsvpMessage() {
+    const extra = guests === 0 ? '' : guests === 1 ? ' e vou levar 1 acompanhante' : ` e vou levar ${guests} acompanhantes`;
+    return `Oi, Erica e Renato! Confirmo minha presença${extra} no aniversário de vocês, domingo, 20/12, às 19h. 🎉`;
+  }
+  function updateRsvp() {
+    countEl.textContent = guests;
+    minus.disabled = guests === 0;
+    plus.disabled = guests === MAX_GUESTS;
+    rsvp.href = PHONE ? `https://wa.me/${PHONE}?text=${encodeURIComponent(rsvpMessage())}` : QR_LINK;
+  }
+  minus.addEventListener('click', () => { if (guests > 0) { guests--; updateRsvp(); } });
+  plus.addEventListener('click', () => { if (guests < MAX_GUESTS) { guests++; updateRsvp(); } });
+  if (PHONE) note.textContent = 'O WhatsApp abre com a mensagem pronta. É só enviar.';
+  updateRsvp();
+
   const toast = document.getElementById('toast');
   let toastTimer;
   function showToast(text) {
@@ -291,11 +337,13 @@
     ta.remove();
     return ok;
   }
-  document.getElementById('rsvp').addEventListener('click', () => {
+  rsvp.addEventListener('click', () => {
+    if (PHONE) return;   // com número, a mensagem já vai no link
+    const msg = rsvpMessage();
     const done = () => showToast('Mensagem copiada! Cole no WhatsApp e envie.');
     if (navigator.clipboard && navigator.clipboard.writeText) {
-      navigator.clipboard.writeText(RSVP_MSG).then(done, () => { if (copyFallback(RSVP_MSG)) done(); });
-    } else if (copyFallback(RSVP_MSG)) {
+      navigator.clipboard.writeText(msg).then(done, () => { if (copyFallback(msg)) done(); });
+    } else if (copyFallback(msg)) {
       done();
     }
   });
