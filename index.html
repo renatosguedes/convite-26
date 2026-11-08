@@ -294,7 +294,9 @@
   }
 
   // Confirmar presença pelo WhatsApp, com quantidade de acompanhantes
-  const PHONE = '5585987216749';   // número com DDI e DDD, só dígitos (ex.: 5585999999999); vazio = link QR + copiar mensagem
+  // Para quem vão as confirmações: o link /erica/ manda para a Erica; o link principal, para o Renato
+  const CONTACTS = { renato: '5585987216749', erica: 'ERICA_PHONE' };
+  const PHONE = location.pathname.includes('/erica') ? CONTACTS.erica : CONTACTS.renato;
   const QR_LINK = 'https://wa.me/qr/SSKIEHUTOWJAI1';
   const MAX_GUESTS = 10;
   let guests = 0;

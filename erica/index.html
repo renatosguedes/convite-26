@@ -1,0 +1,356 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<base href="../">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta property="og:title" content="Erica e Renato · 26 anos">
+<meta property="og:description" content="Você está convidado! Toque para abrir o convite.">
+<meta property="og:image" content="https://renatosguedes.github.io/convite-26/og-cover-v2.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:url" content="https://renatosguedes.github.io/convite-26/erica/">
+<meta property="og:type" content="website">
+<meta name="twitter:card" content="summary_large_image">
+<title>Erica e Renato · 26 anos</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&display=swap">
+<style>
+  *,*::before,*::after{box-sizing:border-box}
+  [hidden]{display:none!important}
+  body{margin:0}
+  /* Layout: uma coluna estreita como um cartão na mão; o envelope ocupa a tela até ser aberto. */
+  :root {
+    --ground: #e9f3fa;      /* azul-gelo das estrelas do convite */
+    --paper: #ffffff;
+    --wine: #7a0000;        /* vinho dos títulos */
+    --rose: #a8585c;        /* rosado do texto corrido */
+    --seal: #9cc6e2;        /* lacre azul */
+    --shadow: rgba(60, 40, 50, .14);
+    --serif: "Source Serif 4", Georgia, "Times New Roman", serif;
+    color-scheme: light;
+  }
+  html, body { background: var(--ground); color: var(--wine); }
+  body {
+    font-family: var(--serif);
+    padding-left: max(16px, env(safe-area-inset-left, 0px));
+    padding-right: max(16px, env(safe-area-inset-right, 0px));
+    padding-block: 24px 40px;
+  }
+  main {
+    max-width: 440px;
+    margin: 0 auto;
+    display: grid;
+    gap: 20px;
+  }
+  /* Ocupa a altura da tela e centraliza o conteúdo na vertical */
+  .screen {
+    min-height: calc(100vh - 64px);
+    min-height: calc(100svh - 64px);
+    display: grid;
+    align-content: center;
+  }
+  .page {
+    display: block;
+    width: 100%;
+    max-width: 100%;
+    aspect-ratio: 924 / 1302;
+    background: var(--paper);
+    border-radius: 6px;
+    box-shadow: 0 1px 2px var(--shadow), 0 14px 34px var(--shadow);
+    overflow: hidden;
+  }
+  .page img { display: block; width: 100%; height: 100%; }
+
+  /* Capa clicável */
+  #cover {
+    position: relative;
+    border: 0;
+    padding: 0;
+    cursor: pointer;
+    font: inherit;
+    transition: transform .25s ease;
+  }
+  #cover:hover { transform: translateY(-2px); }
+  #cover:focus-visible { outline: 3px solid var(--wine); outline-offset: 4px; }
+  /* Pulso suave sobre o lacre, para indicar onde tocar */
+  .pulse {
+    position: absolute;
+    left: 49.8%;
+    top: 60.9%;
+    width: 15%;
+    aspect-ratio: 1;
+    transform: translate(-50%, -50%);
+    border-radius: 50%;
+    border: 2px solid var(--seal);
+    animation: pulse 2s ease-out infinite;
+    pointer-events: none;
+  }
+  @keyframes pulse {
+    0%   { opacity: .9; transform: translate(-50%, -50%) scale(.85); }
+    100% { opacity: 0;  transform: translate(-50%, -50%) scale(1.6); }
+  }
+
+  /* Abertura */
+  #cover.opening {
+    animation: lift .7s cubic-bezier(.5, 0, .7, .4) forwards;
+    pointer-events: none;
+  }
+  @keyframes lift {
+    0%   { transform: none; opacity: 1; }
+    30%  { transform: scale(1.03) rotate(-1deg); opacity: 1; }
+    100% { transform: translateY(-40px) scale(.92) rotate(2deg); opacity: 0; }
+  }
+  /* Cada bloco entra em sequência, e só quando chega à tela */
+  .reveal { opacity: 0; }
+  .reveal.show { animation: rise .8s cubic-bezier(.2, .7, .2, 1) both; animation-delay: var(--delay, 0s); }
+  @keyframes rise {
+    from { opacity: 0; transform: translateY(28px) scale(.97); }
+    to   { opacity: 1; transform: none; }
+  }
+
+
+  /* Indicação para rolar até os detalhes */
+  .scroll-hint {
+    position: fixed;
+    left: 0; right: 0; bottom: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    padding: 32px max(16px, env(safe-area-inset-right, 0px)) calc(18px + env(safe-area-inset-bottom, 0px)) max(16px, env(safe-area-inset-left, 0px));
+    background: linear-gradient(to top, var(--ground) 45%, rgba(233, 243, 250, 0));
+    border: 0;
+    color: var(--wine);
+    font: 600 15px/1.2 var(--serif);
+    cursor: pointer;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity .5s ease;
+  }
+  .scroll-hint.on { opacity: 1; pointer-events: auto; }
+  .scroll-hint svg { width: 26px; height: 26px; fill: none; stroke: currentColor; stroke-width: 2.2; animation: nudge 1.4s ease-in-out infinite; }
+  @keyframes nudge { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(6px); } }
+  .scroll-hint:focus-visible { outline: 3px solid var(--wine); outline-offset: -6px; }
+
+  .actions { display: grid; justify-items: center; gap: 10px; }
+  .actions .row { display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; }
+  .btn.outline { background: var(--paper); color: var(--wine); box-shadow: inset 0 0 0 2px var(--wine); }
+  .guests {
+    display: flex; align-items: center; justify-content: center; flex-wrap: wrap;
+    gap: 10px 14px; color: var(--wine); font-size: 16px;
+  }
+  .guests label { font-weight: 600; }
+  .guests label small { font-weight: 400; color: var(--rose); }
+  .stepper { display: inline-flex; align-items: center; gap: 4px; background: var(--paper); border-radius: 999px; padding: 4px; box-shadow: inset 0 0 0 1.5px var(--seal); }
+  .stepper button {
+    width: 36px; height: 36px; border: 0; border-radius: 50%;
+    background: var(--ground); color: var(--wine); font: 600 20px/1 var(--serif); cursor: pointer;
+  }
+  .stepper button:disabled { opacity: .35; cursor: default; }
+  .stepper button:focus-visible { outline: 2px solid var(--wine); outline-offset: 2px; }
+  .stepper output { min-width: 2ch; text-align: center; font: 600 18px var(--serif); font-variant-numeric: tabular-nums; }
+  .note { margin: 0; max-width: 32ch; text-align: center; color: var(--rose); font-size: 14px; line-height: 1.4; text-wrap: balance; }
+  .toast {
+    position: fixed;
+    left: 50%;
+    top: calc(16px + env(safe-area-inset-top, 0px));
+    transform: translate(-50%, -12px);
+    max-width: calc(100% - 32px);
+    padding: 10px 16px;
+    border-radius: 12px;
+    background: var(--wine);
+    color: var(--paper);
+    font-size: 15px;
+    text-align: center;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity .3s ease, transform .3s ease;
+    z-index: 20;
+  }
+  .toast.on { opacity: 1; transform: translate(-50%, 0); }
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 22px;
+    border-radius: 999px;
+    background: var(--wine);
+    color: var(--paper);
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 16px;
+  }
+  .btn:focus-visible { outline: 3px solid var(--wine); outline-offset: 3px; }
+  .btn svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 2; }
+
+  @media (prefers-reduced-motion: reduce) {
+    .pulse { animation: none; opacity: .8; }
+    .scroll-hint svg { animation: none; }
+    #cover.opening, .reveal.show { animation-duration: .01s; animation-delay: 0s !important; }
+  }
+</style>
+</head>
+<body>
+
+<main>
+  <div class="screen" id="coverScreen">
+  <button id="cover" class="page" type="button" aria-label="Abrir o convite">
+    <img src="v3-1.jpg" alt="Erica e Renato, 26 anos. Envelope fechado com lacre azul. Clique para abrir.">
+    <span class="pulse" aria-hidden="true"></span>
+  </button>
+  </div>
+
+  <div id="inside" hidden>
+    <div style="display:grid;gap:40px">
+      <div class="screen">
+      <div class="page reveal">
+        <img src="v3-2.jpg" alt="It's our birthday. Fotos de infância da Erica e do Renato com balões de 26. É com imensa alegria que convidamos você para o nosso aniversário!">
+      </div>
+      </div>
+      <div class="page reveal" id="details">
+        <img src="v6-3.jpg" alt="Domingo, 20 de dezembro de 2026, às 19:00. Ma Che!, Rua José Vilar, 1425, Meireles. Confirmar presença até 6 de dezembro. Pizza por nossa conta, bebidas por sua conta.">
+      </div>
+      <div class="actions reveal">
+        <div class="guests">
+          <label id="guestsLabel">Acompanhantes <small>(opcional)</small></label>
+          <div class="stepper" role="group" aria-labelledby="guestsLabel">
+            <button type="button" id="minus" aria-label="Menos um acompanhante">−</button>
+            <output id="count" aria-live="polite">0</output>
+            <button type="button" id="plus" aria-label="Mais um acompanhante">+</button>
+          </div>
+        </div>
+        <div class="row">
+          <a class="btn" id="rsvp" href="https://wa.me/qr/SSKIEHUTOWJAI1" target="_blank" rel="noopener">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>
+            Confirmar presença
+          </a>
+          <a class="btn outline" href="https://maps.app.goo.gl/7cyQAXCkexJD1zJ86" target="_blank" rel="noopener">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s-7-6.2-7-11.5A7 7 0 0 1 19 9.5C19 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/></svg>
+            Ver no mapa
+          </a>
+        </div>
+        <p class="note">Ao confirmar, copiamos uma mensagem pronta. É só colar no WhatsApp e enviar.</p>
+      </div>
+    </div>
+  </div>
+</main>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<button id="hint" class="scroll-hint" type="button" aria-label="Ver os detalhes da festa">
+  Role para ver os detalhes
+  <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
+</button>
+
+<script>
+  const cover = document.getElementById('cover');
+  const inside = document.getElementById('inside');
+  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  cover.addEventListener('click', () => {
+    cover.classList.add('opening');
+    setTimeout(() => {
+      document.getElementById('coverScreen').hidden = true;
+      inside.hidden = false;
+      window.scrollTo({ top: 0, behavior: reduce ? 'auto' : 'smooth' });
+      revealInOrder();
+    }, reduce ? 0 : 650);
+  });
+
+  const hint = document.getElementById('hint');
+  const details = document.getElementById('details');
+  hint.addEventListener('click', () => {
+    details.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'center' });
+  });
+
+  // Mostra cada bloco quando ele entra na tela, com pelo menos 0,6 s entre um e outro.
+  // Depois da página 2, aparece a indicação para rolar; ela some quando a página 3 aparece.
+  function revealInOrder() {
+    const items = [...document.querySelectorAll('.reveal')];
+    const gap = reduce ? 0 : 600;
+    let next = performance.now() + (reduce ? 0 : 150);
+    let detailsShown = false;
+    const show = (el) => {
+      const wait = Math.max(0, next - performance.now());
+      el.style.setProperty('--delay', (wait / 1000) + 's');
+      el.classList.add('show');
+      next = performance.now() + wait + gap;
+      if (el === items[0]) {
+        setTimeout(() => { if (!detailsShown) hint.classList.add('on'); }, wait + (reduce ? 0 : 900));
+      }
+      if (el === details) {
+        detailsShown = true;
+        hint.classList.remove('on');
+      }
+    };
+    if (!('IntersectionObserver' in window)) { items.forEach(show); return; }
+    const io = new IntersectionObserver((entries) => {
+      entries
+        .filter((e) => e.isIntersecting)
+        .sort((a, b) => items.indexOf(a.target) - items.indexOf(b.target))
+        .forEach((e) => { io.unobserve(e.target); show(e.target); });
+    }, { threshold: 0.5 });
+    items.forEach((el) => io.observe(el));
+  }
+
+  // Confirmar presença pelo WhatsApp, com quantidade de acompanhantes
+  // Para quem vão as confirmações: o link /erica/ manda para a Erica; o link principal, para o Renato
+  const CONTACTS = { renato: '5585987216749', erica: 'ERICA_PHONE' };
+  const PHONE = location.pathname.includes('/erica') ? CONTACTS.erica : CONTACTS.renato;
+  const QR_LINK = 'https://wa.me/qr/SSKIEHUTOWJAI1';
+  const MAX_GUESTS = 10;
+  let guests = 0;
+  const rsvp = document.getElementById('rsvp');
+  const countEl = document.getElementById('count');
+  const minus = document.getElementById('minus');
+  const plus = document.getElementById('plus');
+  const note = document.querySelector('.note');
+
+  function rsvpMessage() {
+    const extra = guests === 0 ? '' : guests === 1 ? ' e vou levar 1 acompanhante' : ` e vou levar ${guests} acompanhantes`;
+    return `Oi, Erica e Renato! Confirmo minha presença${extra} no aniversário de vocês, domingo, 20/12, às 19h. 🎉`;
+  }
+  function updateRsvp() {
+    countEl.textContent = guests;
+    minus.disabled = guests === 0;
+    plus.disabled = guests === MAX_GUESTS;
+    rsvp.href = PHONE ? `https://wa.me/${PHONE}?text=${encodeURIComponent(rsvpMessage())}` : QR_LINK;
+  }
+  minus.addEventListener('click', () => { if (guests > 0) { guests--; updateRsvp(); } });
+  plus.addEventListener('click', () => { if (guests < MAX_GUESTS) { guests++; updateRsvp(); } });
+  if (PHONE) note.textContent = 'O WhatsApp abre com a mensagem pronta. É só enviar.';
+  updateRsvp();
+
+  const toast = document.getElementById('toast');
+  let toastTimer;
+  function showToast(text) {
+    toast.textContent = text;
+    toast.classList.add('on');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => toast.classList.remove('on'), 4000);
+  }
+  function copyFallback(text) {
+    const ta = document.createElement('textarea');
+    ta.value = text; ta.setAttribute('readonly', '');
+    ta.style.position = 'fixed'; ta.style.opacity = '0';
+    document.body.appendChild(ta); ta.select();
+    let ok = false;
+    try { ok = document.execCommand('copy'); } catch (e) {}
+    ta.remove();
+    return ok;
+  }
+  rsvp.addEventListener('click', () => {
+    if (PHONE) return;   // com número, a mensagem já vai no link
+    const msg = rsvpMessage();
+    const done = () => showToast('Mensagem copiada! Cole no WhatsApp e envie.');
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(msg).then(done, () => { if (copyFallback(msg)) done(); });
+    } else if (copyFallback(msg)) {
+      done();
+    }
+  });
+</script>
+
+</body>
+</html>
