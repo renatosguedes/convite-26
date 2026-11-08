@@ -259,8 +259,14 @@
 
   const hint = document.getElementById('hint');
   const details = document.getElementById('details');
+  // Rola até os detalhes de um jeito que os botões de confirmar e do mapa já apareçam embaixo.
+  // Se não couber tudo, prioriza o topo da página 3.
   hint.addEventListener('click', () => {
-    details.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'center' });
+    const actions = document.querySelector('.actions');
+    const top = details.getBoundingClientRect().top + window.scrollY;
+    const bottom = actions.getBoundingClientRect().bottom + window.scrollY;
+    const target = Math.min(top - 16, bottom - window.innerHeight + 24);
+    window.scrollTo({ top: Math.max(0, target), behavior: reduce ? 'auto' : 'smooth' });
   });
 
   // Mostra cada bloco quando ele entra na tela, com pelo menos 0,6 s entre um e outro.
@@ -281,10 +287,14 @@
       if (el === details) {
         detailsShown = true;
         hint.classList.remove('on');
+        // Os botões entram logo depois da página 3, mesmo que ainda estejam só parcialmente na tela
+        const actions = document.querySelector('.actions');
+        if (!actions.classList.contains('show')) { io && io.unobserve(actions); show(actions); }
       }
     };
+    let io = null;
     if (!('IntersectionObserver' in window)) { items.forEach(show); return; }
-    const io = new IntersectionObserver((entries) => {
+    io = new IntersectionObserver((entries) => {
       entries
         .filter((e) => e.isIntersecting)
         .sort((a, b) => items.indexOf(a.target) - items.indexOf(b.target))
